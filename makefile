@@ -5,12 +5,31 @@ OBJDIR=obj
 SRCDIR=src
 BDIR=build
 
-OBJ=$(addprefix $(OBJDIR)/, $(patsubst $(SRCDIR)/%.c, %.o, $(wildcard $(SRCDIR)/*.c)))
+# Gets all c files in src and turns them into .o and .d files in obj/
+OBJ=$(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(wildcard $(SRCDIR)/*.c))
+DEP=$(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.d, $(wildcard $(SRCDIR)/*.c))
 
-$(BDIR)/disp: $(OBJ) 
-	$(CC) $^ -o $(BDIR)/disp
+PROG=$(BDIR)/disp
 
+######################################################################
+# Top level
+.PHONY: all
+all: disp
+
+# Main program
+.PHONY: disp
+disp: $(PROG)
+$(PROG): $(OBJ) 
+	$(CC) $^ -o $(PROG)
+
+# Map all c files to obj file of same name with a rule for each
+# Compiler generates .d dependency for each c file and puts it into obj/
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
-	$(CC) -c $(CFLAGS) $< -o $@
+	$(CC) -c -MMD -MP -MT '$@' $(CFLAGS) $< -o $@
 
-# TODO handle headers
+# Clean all .o and .d files and the build directory
+.PHONY: clean
+clean:
+	rm -r *.o *.d build/*
+
+-include $(DEP)

@@ -1,4 +1,5 @@
 **.o
+**.d
 **.pyc
 **.swp
 build/
