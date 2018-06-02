@@ -5,9 +5,10 @@ OBJDIR=obj
 SRCDIR=src
 BDIR=build
 
+SRC=$(wildcard $(SRCDIR)/*.c)
 # Gets all c files in src and turns them into .o and .d files in obj/
-OBJ=$(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(wildcard $(SRCDIR)/*.c))
-DEP=$(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.d, $(wildcard $(SRCDIR)/*.c))
+OBJ=$(SRC:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
+DEP=$(SRC:$(SRCDIR)/%.c=$(OBJDIR)/%.d)
 
 PROG=$(BDIR)/disp
 
@@ -30,6 +31,6 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 # Clean all .o and .d files and the build directory
 .PHONY: clean
 clean:
-	rm -r *.o *.d build/*
+	rm obj/* && rm build/* 
 
 -include $(DEP)
