@@ -22,8 +22,9 @@ bool write_file( const char * path, const char * message )
 {
     FILE * file;
     OPEN_FILE_CHECKED( file, path, "w", return false );
+
     bool success = true;
-    if( fprintf( file, message ) < 0 ){
+    if( fputs( message, file ) < 0 ){
         fprintf( stderr, "Cannot write to file %s\n", path );
         success = false;
     }
@@ -37,6 +38,7 @@ bool read_file( const char * path, char * buffer, size_t buflen )
 
     FILE * file;
     OPEN_FILE_CHECKED( file, path, "r", return false );
+
     bool success = true;
     if( !fgets( buffer, buflen, file ) ){
         fprintf( stderr, "Cannot read from file %s\n", path );

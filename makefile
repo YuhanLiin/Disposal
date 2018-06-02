@@ -1,5 +1,7 @@
 CC=$$armcc
-CFLAGS=-Wall -Wformat -pedantic -std=c11
+CFLAGS=-Wall -Wextra -Wformat=2 -Wundef -Wpointer-arith -Wcast-align\
+		-Wstrict-prototypes -Wwrite-strings -Wswitch-default -Wswitch-enum\
+		-pedantic -std=c11 -g
 
 OBJDIR=obj
 SRCDIR=src
