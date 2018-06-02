@@ -25,11 +25,11 @@ TEST=$(BDIR)/test
 ######################################################################
 # Top level
 .PHONY: all
-all: disp test
+all: prog test
 
 # Main program
-.PHONY: disp
-disp: $(PROG)
+.PHONY: prog
+prog: $(PROG)
 $(PROG): $(OBJ) 
 	$(CC) $^ -o $(PROG)
 
