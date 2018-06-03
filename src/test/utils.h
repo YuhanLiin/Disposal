@@ -32,7 +32,7 @@
 }
 
 // Asserts equality. Type and format string of the values are needed
-// Comparator macro that tests the two values for inequality also needed
+// Requires comparator macro that returns true if the two values trigger a test failure 
 #define ASSERT( expr, expected, fmt_spec, type, cmp ) do {\
     type _expr = expr;\
     type _expected = expected;\
@@ -54,7 +54,9 @@
 // Type-specific asserts
 #define INT_CMP( a, b ) (a != b)
 #define INT_ASSERT( expr, expected ) ASSERT( expr, expected, "%d", int, INT_CMP )
+#define INT_ASSERT_NE( expr, expected ) ASSERT( expr, expected, "%d", int, !INT_CMP )
 
 #define STR_CMP( a, b ) (strcmp( a, b ) != 0)
 #define STR_ASSERT( expr, expected ) ASSERT( expr, expected, "\"%s\"", const char *, STR_CMP )
+#define STR_ASSERT_NE( expr, expected ) ASSERT( expr, expected, "\"%s\"", const char *, !STR_CMP )
 

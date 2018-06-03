@@ -25,8 +25,19 @@ START_TEST( file )
 
 START_TEST( config_pin )
 {
+    INT_ASSERT_NE( config_pin( 1, 1, PIN_MODE_IN ), 0 );
+    
+    for( enum Config_pin_mode mode = PIN_MODE_HI; mode < PIN_MODE_MAX; mode++ ){
+        INT_ASSERT( config_pin( 1, 6, mode ), 0 );
+        INT_ASSERT( config_pin( 2, 8, mode ), 0 );
+    }
+} END_TEST()
 
-}
+START_TEST( all )
+{
+    DEPEND_TEST( file );
+    DEPEND_TEST( config_pin );
+} END_TEST()
 
 int main( void )
 {

@@ -6,10 +6,10 @@
 
 int main( void )
 {
-    config_pin( 1, 2, PIN_GPIO_IN );
-    config_pin( 1, 4, PIN_GPIO_OUT );
-    config_pin( 1, 6, PIN_GPIO_HI );
-    config_pin( 1, 8, PIN_GPIO_LO );
+    config_pin( 1, 2, PIN_MODE_IN );
+    config_pin( 1, 4, PIN_MODE_OUT );
+    config_pin( 1, 6, PIN_MODE_HI );
+    config_pin( 1, 8, PIN_MODE_LO );
 
     gpio_write( 2, true );
     
