@@ -10,6 +10,7 @@
 
 bool gpio_write( int gpio_num, int val )
 {
+    // Not all numbers in this range are GPIO numbers
     assert( gpio_num >= 2 && gpio_num <= 117 );
     assert( val == 1 || val == 0 );
 
@@ -22,6 +23,8 @@ bool gpio_write( int gpio_num, int val )
 
 bool gpio_read( int gpio_num, int * val_ptr )
 {
+    // Not all numbers in this range are GPIO numbers
+    assert( gpio_num >= 2 && gpio_num <= 117 );
     assert( val_ptr );
 
     char gpio_path[ MAX_GPIO_PATH_LEN ];

@@ -1,6 +1,6 @@
 CC=$$armcc
 CFLAGS=-Wall -Wextra -Wformat=2 -Wundef -Wpointer-arith -Wcast-align\
-		-Wstrict-prototypes -Wwrite-strings -Wswitch-default -Wswitch-enum\
+		-Wstrict-prototypes -Wwrite-strings -Wswitch-default -Werror\
 		-pedantic -std=c11 -g -Isrc
 
 OBJDIR=obj

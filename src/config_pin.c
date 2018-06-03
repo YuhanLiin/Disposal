@@ -10,7 +10,7 @@
 int config_pin( int header_num, int pin_num, enum Config_pin_mode mode )
 {
     assert( header_num == 1 || header_num == 2 );
-    // Pin numbers must be in this range, though not all numbers in the range are valid
+    // Pin numbers must be in this range
     assert( pin_num >= 1 && pin_num <= 36 );
 
     const char * mode_str;

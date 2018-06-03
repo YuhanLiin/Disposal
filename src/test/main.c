@@ -33,10 +33,25 @@ START_TEST( config_pin )
     }
 } END_TEST()
 
+START_TEST( gpio )
+{
+    int val;
+
+    INT_ASSERT( gpio_write( 6, 0 ), false );
+    INT_ASSERT( gpio_read( 6, &val ), false );
+    
+    // Only way right now to set GPIO to output
+    config_pin( 2, 17, PIN_MODE_OUT );
+    INT_ASSERT( gpio_write( 65, 1 ), true );
+    INT_ASSERT( gpio_read( 65, &val ), true );
+    INT_ASSERT( val, 1 );
+} END_TEST()
+
 START_TEST( all )
 {
     DEPEND_TEST( file );
     DEPEND_TEST( config_pin );
+    DEPEND_TEST( gpio );
 } END_TEST()
 
 int main( void )
