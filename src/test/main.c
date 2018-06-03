@@ -7,7 +7,7 @@
 
 #include "test/utils.h"
 
-START_TEST( all )
+START_TEST( file )
 {
     char buffer[10];
     size_t len = sizeof( buffer );
@@ -22,6 +22,11 @@ START_TEST( all )
         STR_ASSERT( buffer, "testing" );
     }
 } END_TEST()
+
+START_TEST( config_pin )
+{
+
+}
 
 int main( void )
 {

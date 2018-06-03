@@ -1,3 +1,5 @@
+#pragma once
+
 enum Config_pin_mode {
     PIN_GPIO_HI,
     PIN_GPIO_LO,
