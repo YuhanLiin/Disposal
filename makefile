@@ -49,7 +49,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) -c $(DEPFLAGS) $(CFLAGS) $< -o $@
 
 $(OBJDIR)/tst_%.o: $(TSTDIR)/%.c
-	$(CC) -c $(DEPFLAGS) '$@' $(CFLAGS) $< -o $@
+	$(CC) -c $(DEPFLAGS) $(CFLAGS) $< -o $@
 
 # Makes it so dependency errors are suppressed when a .h file is deleted/renamed
 $(INC) $(INC_TST):

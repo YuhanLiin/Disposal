@@ -7,54 +7,56 @@
 
 #include "test/utils.h"
 
-START_TEST( file )
+tst_begin_test( file )
 {
     char buffer[10];
     size_t len = sizeof( buffer );
 
-    INT_ASSERT( write_file( "", "testing" ), false );
-    INT_ASSERT( read_file( "", buffer, len ), false );
+    tst_assert_eq_int( write_file( "", "testing" ), false );
+    tst_assert_eq_int( read_file( "", buffer, len ), false );
     
     // The file read relies on the file write succeeding
-    INT_ASSERT( write_file( "test.txt", "testing" ), true );
-    INT_ASSERT( read_file( "test.txt", buffer, len ), true );
-    SKIP_IF_FAILED {
-        STR_ASSERT( buffer, "testing" );
-    }
-} END_TEST()
+    tst_assert_eq_int( write_file( "test.txt", "testing" ), true );
+    tst_assert_eq_int( read_file( "test.txt", buffer, len ), true );
+    tst_abort_if_failing();
+    tst_assert_eq_str( buffer, "testing" );
+} tst_end_test()
 
-START_TEST( config_pin )
+tst_begin_test( config_pin )
 {
-    INT_ASSERT_NE( config_pin( 1, 1, PIN_MODE_IN ), 0 );
+    tst_assert_ne_int( config_pin( 1, 1, PIN_MODE_IN ), 0 );
     
     for( enum Config_pin_mode mode = PIN_MODE_HI; mode < PIN_MODE_MAX; mode++ ){
-        INT_ASSERT( config_pin( 1, 6, mode ), 0 );
-        INT_ASSERT( config_pin( 2, 8, mode ), 0 );
+        tst_assert_eq_int( config_pin( 1, 6, mode ), 0 );
+        tst_assert_eq_int( config_pin( 2, 8, mode ), 0 );
     }
-} END_TEST()
+} tst_end_test()
 
-START_TEST( gpio )
+tst_begin_test( gpio )
 {
     int val;
 
-    INT_ASSERT( gpio_write( 6, 0 ), false );
-    INT_ASSERT( gpio_read( 6, &val ), false );
+    tst_assert_eq_int( gpio_write( 6, 0 ), false );
+    tst_assert_eq_int( gpio_read( 6, &val ), false );
     
     // Only way right now to set GPIO to output
-    config_pin( 2, 17, PIN_MODE_OUT );
-    INT_ASSERT( gpio_write( 65, 1 ), true );
-    INT_ASSERT( gpio_read( 65, &val ), true );
-    INT_ASSERT( val, 1 );
-} END_TEST()
+    tst_assert_eq_int( config_pin( 2, 17, PIN_MODE_OUT ), 0 );
+    tst_assert_eq_int( gpio_write( 65, 1 ), true );
+    tst_assert_eq_int( gpio_read( 65, &val ), true );
+    tst_assert_eq_int( val, 1 );
+} tst_end_test()
 
-START_TEST( all )
+tst_begin_test_skip( skipped )
 {
-    DEPEND_TEST( file );
-    DEPEND_TEST( config_pin );
-    DEPEND_TEST( gpio );
-} END_TEST()
+
+} tst_end_test()
 
 int main( void )
 {
-    return RUN_TEST( all );
+    tst_assert_ne_str( "good", "stuff" );
+    tst_run_test( file );
+    tst_run_test( config_pin );
+    tst_run_test( gpio );
+    tst_report_results();
 }
+
