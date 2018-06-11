@@ -20,18 +20,30 @@ static struct _tst_test_stats_t _tst_test_stats = {0};
 // The pointer is guaranteed to point to global data, since the struct variable may be shadowed
 static struct _tst_assertion_stats_t * _g_tst_assertion_stats_ptr = &_tst_assertion_stats;
 
+// Default setup/teardown function, which does nothing and always succeeds
+int _tst_do_nothing( void ) { return 0; }
+
+// Function ptrs for setup and teardown
+// Takes no args, returns 0 for sucess, fail otherwise
+typedef int ( *_tst_hook_func_t )( void );
+static _tst_hook_func_t _tst_g_setup_ptr = &_tst_do_nothing;
+static _tst_hook_func_t _tst_g_teardown_ptr = &_tst_do_nothing;
+
+// Macros for setting/unsetting setup and teardown functions
+#define tst_set_setup( func ) (_tst_g_setup_ptr = &func)
+#define tst_set_teardown( func ) (_tst_g_teardown_ptr = &func)
+#define tst_unset_setup() (_tst_g_setup_ptr = &_tst_do_nothing)
+#define tst_unset_teardown() (_tst_g_teardown_ptr = &_tst_do_nothing)
+
 // Symbols
 #define _tst_checkmark "\u2713"
 #define _tst_crossmark "\u2717"
-#define _tst_circle "\u25EF"
+#define _tst_circle "\u25CB"
 #define _tst_checkmark_line _tst_checkmark _tst_checkmark _tst_checkmark _tst_checkmark
 #define _tst_crossmark_line _tst_crossmark _tst_crossmark _tst_crossmark _tst_crossmark
 
 // Generates name of test functions. Used to generate function definitions and calls
 #define _tst_gen_name( name ) _tst_func_##name
-
-// Mark tests as skippable if previous tests have failed to avoid nasty UB
-#define SKIP_IF_FAILED if( _pass_status != 0 )
 
 // Returns whether the test case or the suite is passing based on asserts.
 #define tst_passing() (_tst_assertion_stats.failed == 0)
@@ -62,9 +74,9 @@ static struct _tst_assertion_stats_t * _g_tst_assertion_stats_ptr = &_tst_assert
 #define tst_report_results() do {\
     printf( "\n" );\
     if( tst_passing() ){\
-        printf( _tst_checkmark_line " Test case %s PASSED! " _tst_checkmark_line "\n", __FILE__ );\
+        printf( _tst_checkmark_line " Module %s PASSED! " _tst_checkmark_line "\n", __FILE__ );\
     } else {\
-        printf( _tst_crossmark_line " Test case %s FAILED! " _tst_crossmark_line "\n", __FILE__ );\
+        printf( _tst_crossmark_line " Module %s FAILED! " _tst_crossmark_line "\n", __FILE__ );\
     }\
     _tst_report_tests();\
     _tst_report_asserts();\
@@ -79,41 +91,62 @@ static struct _tst_assertion_stats_t * _g_tst_assertion_stats_ptr = &_tst_assert
     _g_tst_assertion_stats_ptr->failed += _tst_assertion_stats.failed;\
 } while( 0 )
 
+// Calls teardown, checks for failures, then updates the test counter before returning.
+// Called whenever we need to exit from the test
+#define _tst_exit( test_stat_field ) do {\
+    _tst_test_stats.test_stat_field += 1;\
+    int _tst_teardown_ret = (*_tst_g_teardown_ptr)();\
+    if( _tst_teardown_ret != 0 ){\
+        printf(\
+            _tst_crossmark " Warning: TEARDOWN FAILED with code %d, carrying on.\n",\
+            _tst_teardown_ret\
+        );\
+    }\
+    printf("\n");\
+    return;\
+} while( 0 )
+
 // Initializes a new test function. Must be matched by an END_TEST.
 // name =  unique identifier name of the test
 #define tst_begin_test( name ) void _tst_gen_name( name )( void )\
 {\
     static struct _tst_assertion_stats_t _tst_assertion_stats = {0};\
-    const char * _tst_name = #name;
+    const char * _tst_name = #name;\
+    int _tst_setup_ret = (*_tst_g_setup_ptr)();\
+    if( _tst_setup_ret != 0 ){\
+        printf(\
+            _tst_crossmark " Test case \"%s\" SETUP FAILED with code %d, ABORTING!\n",\
+            _tst_name, _tst_setup_ret\
+        );\
+        _tst_exit( skipped );\
+    }
 
 // Version of tst_begin_test that skips the whole test case.
 #define tst_begin_test_skip( name ) tst_begin_test( name )\
-    printf( "\n" _tst_circle " Test case \"%s\" SKIPPED!\n", _tst_name );\
-    _tst_test_stats.skipped += 1;\
-    return;
+    printf( _tst_circle " Test case \"%s\" SKIPPED!\n", _tst_name );\
+    _tst_exit( skipped );
     
 // Prints result message depending on whether the test case passed or failed
 // and reports assert stats for this test
 #define tst_end_test()\
-    if( tst_passing() ){\
-        printf( "\n" _tst_checkmark " Test case \"%s\" PASSED!\n", _tst_name );\
-        _tst_test_stats.passed += 1;\
-    } else {\
-        printf( "\n" _tst_crossmark " Test case \"%s\" FAILED!\n", _tst_name );\
-        _tst_test_stats.failed += 1;\
-    }\
-    _tst_report_asserts();\
     _tst_sync();\
-    return;\
+    if( tst_passing() ){\
+        printf( _tst_checkmark " Test case \"%s\" PASSED!\n", _tst_name );\
+        _tst_report_asserts();\
+        _tst_exit( passed );\
+    } else {\
+        printf( _tst_crossmark " Test case \"%s\" FAILED!\n", _tst_name );\
+        _tst_report_asserts();\
+        _tst_exit( failed );\
+    }\
 }
 
 // Aborts a test, which marks it as failed
 #define tst_abort_test() do {\
-    printf( "\n" _tst_crossmark " Test case \"%s\" ABORTED!\n", _tst_name );\
+    printf( _tst_crossmark " Test case \"%s\" ABORTED!\n", _tst_name );\
     _tst_report_asserts();\
-    _tst_test_stats.failed += 1;\
     _tst_sync();\
-    return;\
+    _tst_exit( failed );\
 } while( 0 )
 
 // Abort test when failing

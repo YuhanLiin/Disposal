@@ -51,12 +51,33 @@ tst_begin_test_skip( skipped )
 
 } tst_end_test()
 
+int setup( void )
+{
+    printf( "Setup\n" );
+    return 0;
+}
+
+int teardown( void )
+{
+    printf( "teardown\n" );
+    return 0;
+}
+
 int main( void )
 {
     tst_assert_ne_str( "good", "stuff" );
+
+    tst_set_setup( setup );
+    tst_set_teardown( teardown );
     tst_run_test( file );
+
+    tst_unset_setup();
+    tst_unset_teardown();
     tst_run_test( config_pin );
+
     tst_run_test( gpio );
+    tst_run_test( skipped );
+    
     tst_report_results();
 }
 
